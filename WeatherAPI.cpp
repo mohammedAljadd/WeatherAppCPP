@@ -29,13 +29,15 @@ WeatherAPI::WeatherAPI(std::string apiKey_, std::string city_, std::string units
 	}
 
 	// Send request
-	void WeatherAPI::SendRequest() {
+    void WeatherAPI::SendRequest() {
+        // Capture units by reference in the lambda function
+        auto& unitsRef = units;
 
         // HTTP client
         http_client client = httpClient();
 
         // Send a GET request asynchronously
-        client.request(methods::GET).then([](http_response response) {
+        client.request(methods::GET).then([&unitsRef](http_response response) {
             // Check if the request was successful
             if (response.status_code() == status_codes::OK) {
                 // Extract and parse the JSON response
@@ -46,31 +48,38 @@ WeatherAPI::WeatherAPI(std::string apiKey_, std::string city_, std::string units
                 std::cerr << "Failed to get response. Status code: " << response.status_code() << std::endl;
                 return pplx::task_from_result(json::value());
             }
-            }).then([](json::value responseBody) {
-                // Check if the "main" object and "weather" array exist in the response
-                if (responseBody.has_field(U("main")) && responseBody.has_field(U("weather"))) {
-                    // Get temperature and humidity from the "main" object
-                    auto& mainObject = responseBody[U("main")];
-                    if (mainObject.has_field(U("temp"))) {
-                        double temperature = mainObject[U("temp")].as_double();
-                        std::cout << "Temperature: " << temperature << "\u00B0C" << std::endl;
+        }).then([&unitsRef](json::value responseBody) {
+            // Check if the "main" object and "weather" array exist in the response
+            if (responseBody.has_field(U("main")) && responseBody.has_field(U("weather"))) {
+                // Get temperature and humidity from the "main" object
+                auto& mainObject = responseBody[U("main")];
+                if (mainObject.has_field(U("temp"))) {
+                    double temperature = mainObject[U("temp")].as_double();
+                    if (unitsRef == "metric") {
+                        std::cout << "Temperature: " << temperature << " Celsius" << std::endl;
                     }
-                    if (mainObject.has_field(U("humidity"))) {
-                        int humidity = mainObject[U("humidity")].as_integer();
-                        std::cout << "Humidity: " << humidity << "%" << std::endl;
-                    }
-
-                    // Get description (sky condition) from the first element of the "weather" array
-                    auto& weatherArray = responseBody[U("weather")].as_array();
-                    if (weatherArray.size() > 0) {
-                        auto& weatherObject = weatherArray[0];
-                        if (weatherObject.has_field(U("description"))) {
-                            utility::string_t description = weatherObject[U("description")].as_string();
-                            std::cout << "Sky condition: " << utility::conversions::to_utf8string(description) << std::endl;
-                        }
+                    else {
+                        std::cout << "Temperature: " << temperature << " Fahrenheit" << std::endl;
                     }
                 }
-                }).wait();
+                if (mainObject.has_field(U("humidity"))) {
+                    int humidity = mainObject[U("humidity")].as_integer();
+                    std::cout << "Humidity: " << humidity << "%" << std::endl;
+                }
+
+                // Get description (sky condition) from the first element of the "weather" array
+                auto& weatherArray = responseBody[U("weather")].as_array();
+                if (weatherArray.size() > 0) {
+                    auto& weatherObject = weatherArray[0];
+                    if (weatherObject.has_field(U("description"))) {
+                        utility::string_t description = weatherObject[U("description")].as_string();
+                        std::cout << "Sky condition: " << utility::conversions::to_utf8string(description) << std::endl;
+                    }
+                }
+            }
+        }).wait();
+
+
 	}
 
 

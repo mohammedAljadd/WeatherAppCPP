@@ -5,9 +5,9 @@
 int main(int argc, char* argv[]) {
 
     // Initialize our variables
-    std::string apiKey = argv[0];
-    std::string city = argv[1];
-    std::string units = argv[2];
+    std::string apiKey = argv[1];
+    std::string city = argv[2];
+    std::string units = argv[3];
     
     // Construct WeatherAPI object
 
