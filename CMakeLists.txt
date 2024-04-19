@@ -1,26 +1,36 @@
-cmake_minimum_required(VERSION 3.10)
-project(WeatherAppCPP)
+# Minimum required CMake version
+cmake_minimum_required(VERSION 3.12)
 
-# Set paths
-set(CPPREST_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/cpprest/include")
-set(CPPREST_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/cpprest/lib")
+# Project name and version
+project(WeatherAppCPP VERSION 1.0.0)
 
-# Add your project's source files
-set(SOURCES
-    Main.cpp
-    WeatherAPI.cpp
-    WeatherAPI.h
+# ---------------------- Linking CPPREST library ----------------------
+
+# Include directories for cpprest
+include_directories(Dependencies/cpprest/include)       # location of header files
+
+# Add cpprest library
+link_directories(Dependencies/cpprest/lib)              # location of the precompiled cpprest library
+link_libraries(cpprest142_2_10d)                        # name of the library .lib file 
+
+# --------------------------- Adding WeatherAPI library ----------------------------------
+
+# Adding WeatherAPI library
+add_library(
+    WeatherAppCPPLib        # I called this WeatherAppCPPLib
+    WeatherAPI.h            # header file
+    WeatherAPI.cpp          # cpp file
 )
 
-# Include directories
-include_directories(${CPPREST_INCLUDE_DIR})
+# Creating the executable
+add_executable(WeatherAppCPP Main.cpp)    # main exe
 
-# Create executable
-add_executable(WeatherAppCPP ${SOURCES})
+# Linking WeatherAppCPP with WeatherAppCPPLib
+target_link_libraries(WeatherAppCPP PRIVATE WeatherAppCPPLib)
 
-# Link against cpprest library
-target_link_directories(WeatherAppCPP PRIVATE ${CPPREST_LIB_DIR})
-target_link_libraries(WeatherAppCPP PRIVATE cpprest)
-
-# Copy DLL file to the output directory
-file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/cpprest/lib/cpprest142_2_10d.dll" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+# Copy the cpprest DLL file to the target directory
+# the cpprest dll file must be near exe file
+add_custom_command(TARGET WeatherAppCPP POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_SOURCE_DIR}/Dependencies/cpprest/lib/cpprest142_2_10d.dll
+    ${CMAKE_BINARY_DIR}/Debug)
