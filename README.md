@@ -30,7 +30,9 @@ To build WeatherAppCPP, follow these steps:
 
 ## Usage
 
-Before running WeatherAppCPP, you need to sign up for an account on [OpenWeatherMap](https://openweathermap.org/) to obtain an API key.
+Before running WeatherAppCPP, you need to sign up for an account on [OpenWeatherMap](https://openweathermap.org/) to obtain an API key. It's completely free for the our case.
+
+You will generate an API key in this link [api keys](https://home.openweathermap.org/api_keys).
 
 After obtaining your API key, follow these steps to run WeatherAppCPP:
 
@@ -48,3 +50,8 @@ After obtaining your API key, follow these steps to run WeatherAppCPP:
     ./WeatherAppCPP <api_key> <city> <units>
     ```
 3. After running the executable, the output will display the temperature, humidity, and weather conditions for the specified city.
+
+
+## cpprest library
+
+In this project, I used the cpprest library my Microsoft to send requests to the API. All the necessary files are put in the Dependecies folder. The linking is made via cmake.
